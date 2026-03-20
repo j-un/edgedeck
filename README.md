@@ -216,7 +216,7 @@ This project runs within Cloudflare's free tier for most personal use:
 | R2         | **10GB storage**, 10M reads/month | May exceed with large music libraries |
 | Zero Trust | 50 users                          | 1 seat for personal use               |
 
-R2 storage is the most likely limit to hit. FLAC albums are typically 300–700MB, so ~15–30 albums will reach 10GB. Beyond that, the Workers Paid plan ($5/month) is required.
+R2 storage is the most likely limit to hit. FLAC albums are typically 300–700MB, so ~15–30 albums will reach 10GB. Beyond that, R2 charges $0.015/GB/month for additional storage.
 
 ## Project Structure
 
