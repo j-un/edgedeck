@@ -1,4 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="64" fill="#1db954"/>
-  <path d="M160 128 L160 384 L400 256 Z" fill="#000"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12121a"/>
+      <stop offset="100%" stop-color="#08080c"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0be6e"/>
+      <stop offset="100%" stop-color="#e8a84c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Disc -->
+  <circle cx="256" cy="256" r="138" fill="none" stroke="url(#acc)" stroke-width="10"/>
+  <circle cx="256" cy="256" r="96" fill="none" stroke="url(#acc)" stroke-width="5" opacity="0.4"/>
+  <circle cx="256" cy="256" r="26" fill="url(#acc)"/>
+  <!-- Play triangle -->
+  <path d="M230 198 L230 314 L316 256 Z" fill="url(#acc)" opacity="0.85"/>
 </svg>
