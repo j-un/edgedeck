@@ -1,6 +1,6 @@
 {
-  "name": "Music Streaming",
-  "short_name": "Music",
+  "name": "EdgeDeck",
+  "short_name": "EdgeDeck",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#08080c",
