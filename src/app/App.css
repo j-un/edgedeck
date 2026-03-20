@@ -57,6 +57,11 @@
   gap: 2px;
 }
 
+/* Bottom tab bar: hidden on desktop */
+.nav-links-bottom {
+  display: none;
+}
+
 .nav-links button {
   background: none;
   border: none;
@@ -964,25 +969,46 @@
     flex-shrink: 0;
   }
 
-  .nav-links {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .nav-links::-webkit-scrollbar {
+  /* Hide top tabs on mobile */
+  .nav-links-top {
     display: none;
   }
 
-  .nav-links button {
+  /* Show bottom tab bar on mobile */
+  .nav-links-bottom {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 25;
+    background: var(--c-surface-1);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--c-border);
+    justify-content: space-around;
+    padding: 6px 8px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    gap: 0;
+  }
+
+  .nav-links-bottom button {
+    flex: 1;
     flex-shrink: 0;
-    font-size: 13px;
-    padding: 6px 10px;
+    font-size: 12px;
+    padding: 8px 4px;
+    text-align: center;
+    min-width: 0;
+  }
+
+  /* Player sits above the bottom tab bar */
+  .player {
+    bottom: calc(42px + env(safe-area-inset-bottom));
   }
 
   .main {
     padding: 12px;
-    padding-bottom: 120px;
+    padding-bottom: calc(170px + env(safe-area-inset-bottom));
   }
 
   .search-bar {
