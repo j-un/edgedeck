@@ -215,7 +215,7 @@ while IFS=$'\t' read -r hash filepath; do
     converted_path="$TMP_DIR/$converted_name"
     echo "  Converting: $filename -> AAC"
 
-    if ! ffmpeg -nostdin -i "$filepath" -c:a aac -b:a "$AAC_BITRATE" -y "$converted_path" \
+    if ! ffmpeg -nostdin -i "$filepath" -vn -c:a aac -b:a "$AAC_BITRATE" -y "$converted_path" \
       -loglevel error 2>&1; then
       echo "  ERROR: Conversion failed: $filename"
       failed=$((failed + 1))
