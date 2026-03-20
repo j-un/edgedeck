@@ -32,6 +32,9 @@ export interface AudioPlayerControls {
 
 const persisted = loadPersistedState()
 
+const MAX_RETRY = 3
+const RETRY_DELAY_MS = 1500
+
 export function useAudioPlayer(): AudioPlayerState &
   AudioPlayerControls & {
     audioRef: React.RefObject<HTMLAudioElement | null>
@@ -45,13 +48,88 @@ export function useAudioPlayer(): AudioPlayerState &
   const playlistRef = useRef<Song[]>([])
   const saveTimeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const restoredRef = useRef(false)
+  const retryCountRef = useRef(0)
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const nextSongAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  /** Attempt to play the audio element with retry logic */
+  const playWithRetry = useCallback(
+    (audio: HTMLAudioElement, onSuccess?: () => void) => {
+      retryCountRef.current = 0
+      const attempt = () => {
+        audio
+          .play()
+          .then(() => {
+            retryCountRef.current = 0
+            onSuccess?.()
+          })
+          .catch(() => {
+            retryCountRef.current++
+            if (retryCountRef.current <= MAX_RETRY) {
+              retryTimerRef.current = setTimeout(attempt, RETRY_DELAY_MS)
+            }
+          })
+      }
+      attempt()
+    },
+    [],
+  )
+
+  /** Preload the next song's stream into a hidden audio element */
+  const preloadNextSong = useCallback((nextSong: Song) => {
+    // Clean up previous preload
+    if (nextSongAudioRef.current) {
+      nextSongAudioRef.current.removeAttribute('src')
+      nextSongAudioRef.current.load()
+      nextSongAudioRef.current = null
+    }
+    const preloadAudio = new Audio()
+    preloadAudio.preload = 'auto'
+    preloadAudio.src = `/api/songs/${nextSong.id}/stream`
+    nextSongAudioRef.current = preloadAudio
+  }, [])
 
   // Apply persisted volume on mount
   useEffect(() => {
     const audio = audioRef.current
     if (audio) audio.volume = persisted.volume
     pruneHistory()
+
+    return () => {
+      // Cleanup retry timer and preload on unmount
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+      if (nextSongAudioRef.current) {
+        nextSongAudioRef.current.removeAttribute('src')
+        nextSongAudioRef.current.load()
+        nextSongAudioRef.current = null
+      }
+    }
   }, [])
+
+  /** Advance to the next song in the playlist */
+  const advanceToNext = useCallback(
+    (audio: HTMLAudioElement, fromSongId: string | undefined) => {
+      const idx = playlistRef.current.findIndex((s) => s.id === fromSongId)
+      if (idx >= 0 && idx < playlistRef.current.length - 1) {
+        const nextSong = playlistRef.current[idx + 1]
+        setCurrentSong(nextSong)
+        audio.src = `/api/songs/${nextSong.id}/stream`
+        playWithRetry(audio, () => setIsPlaying(true))
+        addHistoryEntry(nextSong.id)
+        saveQueue(
+          playlistRef.current.map((s) => s.id),
+          idx + 1,
+        )
+        persistCurrentTime(0)
+
+        // Preload the song after next
+        if (idx + 2 < playlistRef.current.length) {
+          preloadNextSong(playlistRef.current[idx + 2])
+        }
+      }
+    },
+    [playWithRetry, preloadNextSong],
+  )
 
   useEffect(() => {
     const audio = audioRef.current
@@ -66,27 +144,23 @@ export function useAudioPlayer(): AudioPlayerState &
           saveTimeRef.current = null
         }, 5000)
       }
+
+      // Preload next song when current is near the end (30 seconds remaining)
+      if (audio.duration && audio.duration - audio.currentTime < 30) {
+        if (!nextSongAudioRef.current) {
+          const idx = playlistRef.current.findIndex(
+            (s) => s.id === currentSong?.id,
+          )
+          if (idx >= 0 && idx < playlistRef.current.length - 1) {
+            preloadNextSong(playlistRef.current[idx + 1])
+          }
+        }
+      }
     }
     const onDurationChange = () => setDuration(audio.duration || 0)
     const onEnded = () => {
       setIsPlaying(false)
-      // 自動次曲再生
-      const idx = playlistRef.current.findIndex((s) => s.id === currentSong?.id)
-      if (idx >= 0 && idx < playlistRef.current.length - 1) {
-        const nextSong = playlistRef.current[idx + 1]
-        setCurrentSong(nextSong)
-        audio.src = `/api/songs/${nextSong.id}/stream`
-        audio
-          .play()
-          .then(() => setIsPlaying(true))
-          .catch(() => {})
-        addHistoryEntry(nextSong.id)
-        saveQueue(
-          playlistRef.current.map((s) => s.id),
-          idx + 1,
-        )
-        persistCurrentTime(0)
-      }
+      advanceToNext(audio, currentSong?.id)
     }
     const onPlay = () => setIsPlaying(true)
     const onPause = () => {
@@ -95,11 +169,56 @@ export function useAudioPlayer(): AudioPlayerState &
       persistCurrentTime(audio.currentTime)
     }
 
+    // Error / stall recovery: retry current playback or advance to next
+    const onError = () => {
+      if (!audio.src) return
+      retryCountRef.current++
+      if (retryCountRef.current <= MAX_RETRY) {
+        retryTimerRef.current = setTimeout(() => {
+          const savedTime = audio.currentTime
+          audio.load()
+          audio.currentTime = savedTime
+          playWithRetry(audio, () => setIsPlaying(true))
+        }, RETRY_DELAY_MS)
+      } else {
+        // Exhausted retries on current song – skip to next
+        setIsPlaying(false)
+        retryCountRef.current = 0
+        advanceToNext(audio, currentSong?.id)
+      }
+    }
+
+    const onStalled = () => {
+      // When stalled, wait a bit then check if still stalled
+      retryTimerRef.current = setTimeout(() => {
+        if (audio.paused && !audio.ended && isPlaying) {
+          audio.load()
+          audio.currentTime = currentTime
+          playWithRetry(audio, () => setIsPlaying(true))
+        }
+      }, 3000)
+    }
+
+    const onWaiting = () => {
+      // Monitor buffering: if stuck waiting too long, reload
+      retryTimerRef.current = setTimeout(() => {
+        if (audio.readyState < 3 && !audio.paused && !audio.ended) {
+          const savedTime = audio.currentTime
+          audio.load()
+          audio.currentTime = savedTime
+          playWithRetry(audio, () => setIsPlaying(true))
+        }
+      }, 10000)
+    }
+
     audio.addEventListener('timeupdate', onTimeUpdate)
     audio.addEventListener('durationchange', onDurationChange)
     audio.addEventListener('ended', onEnded)
     audio.addEventListener('play', onPlay)
     audio.addEventListener('pause', onPause)
+    audio.addEventListener('error', onError)
+    audio.addEventListener('stalled', onStalled)
+    audio.addEventListener('waiting', onWaiting)
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate)
@@ -107,31 +226,56 @@ export function useAudioPlayer(): AudioPlayerState &
       audio.removeEventListener('ended', onEnded)
       audio.removeEventListener('play', onPlay)
       audio.removeEventListener('pause', onPause)
+      audio.removeEventListener('error', onError)
+      audio.removeEventListener('stalled', onStalled)
+      audio.removeEventListener('waiting', onWaiting)
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
     }
-  }, [currentSong])
+  }, [
+    currentSong,
+    isPlaying,
+    currentTime,
+    advanceToNext,
+    playWithRetry,
+    preloadNextSong,
+  ])
 
-  const play = useCallback((song: Song) => {
-    const audio = audioRef.current
-    if (!audio) return
-    setCurrentSong(song)
-    audio.src = `/api/songs/${song.id}/stream`
-    audio.play().catch(() => {})
-    addHistoryEntry(song.id)
-    const idx = playlistRef.current.findIndex((s) => s.id === song.id)
-    saveQueue(
-      playlistRef.current.map((s) => s.id),
-      idx >= 0 ? idx : 0,
-    )
-    persistCurrentTime(0)
-  }, [])
+  const play = useCallback(
+    (song: Song) => {
+      const audio = audioRef.current
+      if (!audio) return
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+      retryCountRef.current = 0
+      setCurrentSong(song)
+      audio.src = `/api/songs/${song.id}/stream`
+      playWithRetry(audio, () => setIsPlaying(true))
+      addHistoryEntry(song.id)
+      const idx = playlistRef.current.findIndex((s) => s.id === song.id)
+      saveQueue(
+        playlistRef.current.map((s) => s.id),
+        idx >= 0 ? idx : 0,
+      )
+      persistCurrentTime(0)
+
+      // Clear any existing preload since we just changed songs
+      if (nextSongAudioRef.current) {
+        nextSongAudioRef.current.removeAttribute('src')
+        nextSongAudioRef.current.load()
+        nextSongAudioRef.current = null
+      }
+    },
+    [playWithRetry],
+  )
 
   const pause = useCallback(() => {
     audioRef.current?.pause()
   }, [])
 
   const resume = useCallback(() => {
-    audioRef.current?.play().catch(() => {})
-  }, [])
+    const audio = audioRef.current
+    if (!audio) return
+    playWithRetry(audio, () => setIsPlaying(true))
+  }, [playWithRetry])
 
   const togglePlay = useCallback(() => {
     if (isPlaying) {
