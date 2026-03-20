@@ -1,0 +1,101 @@
+:root {
+  /* ── Color tokens ── */
+  --c-bg: #08080c;
+  --c-surface-1: rgba(14, 14, 20, 0.75);
+  --c-surface-2: rgba(20, 20, 28, 0.6);
+  --c-surface-3: rgba(28, 28, 38, 0.5);
+
+  --c-accent: #e8a84c;
+  --c-accent-light: #f0be6e;
+  --c-accent-dim: rgba(232, 168, 76, 0.18);
+  --c-accent-glow: rgba(232, 168, 76, 0.08);
+
+  --c-warm: #e8a84c;
+  --c-warm-dim: rgba(232, 168, 76, 0.18);
+
+  --c-danger: #ef4444;
+  --c-danger-dim: rgba(239, 68, 68, 0.12);
+
+  --c-text: #eaeaf0;
+  --c-text-2: #8b8ba0;
+  --c-text-3: #555568;
+
+  --c-border: rgba(255, 255, 255, 0.06);
+  --c-hover: rgba(255, 255, 255, 0.05);
+
+  /* ── Radius ── */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 100px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 40px rgba(124, 106, 239, 0.12);
+
+  /* ── Glass ── */
+  --glass-blur: blur(24px) saturate(1.4);
+
+  /* ── Timing ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast: 0.15s;
+  --t-normal: 0.25s;
+  --t-slow: 0.4s;
+
+  /* ── Typography ── */
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 5% 0%,
+      rgba(232, 168, 76, 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 95% 100%,
+      rgba(232, 168, 76, 0.04) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 50% 50%,
+      rgba(232, 168, 76, 0.02) 0%,
+      transparent 40%
+    ),
+    var(--c-bg);
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--c-accent-dim);
+  color: #fff;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
