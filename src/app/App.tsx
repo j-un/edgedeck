@@ -74,7 +74,7 @@ function App() {
     <div className="app">
       <nav className="nav">
         <h1 className="nav-title">EdgeDeck</h1>
-        <div className="nav-links">
+        <div className="nav-links nav-links-top">
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -86,6 +86,18 @@ function App() {
           ))}
         </div>
       </nav>
+
+      <div className="nav-links nav-links-bottom">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            className={tab === t.key ? 'active' : ''}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       <main className="main">
         <Library
