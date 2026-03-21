@@ -10,7 +10,10 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-type PlayerProps = AudioPlayerState & AudioPlayerControls
+type PlayerProps = AudioPlayerState &
+  AudioPlayerControls & {
+    onStar?: (songId: string) => void
+  }
 
 export function Player({
   currentSong,
@@ -23,6 +26,7 @@ export function Player({
   setVolume,
   next,
   previous,
+  onStar,
 }: PlayerProps) {
   if (!currentSong) return null
 
@@ -41,6 +45,16 @@ export function Player({
           {currentSong.artist ?? 'Unknown Artist'}
         </span>
       </div>
+
+      {onStar && (
+        <button
+          className={`star-btn player-star${currentSong.starred_at ? ' starred' : ''}`}
+          onClick={() => onStar(currentSong.id)}
+          title={currentSong.starred_at ? 'Unstar' : 'Star'}
+        >
+          {currentSong.starred_at ? '★' : '☆'}
+        </button>
+      )}
 
       <div className="player-controls">
         <button onClick={previous} title="Previous">
