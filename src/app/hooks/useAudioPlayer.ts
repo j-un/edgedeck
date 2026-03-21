@@ -28,6 +28,7 @@ export interface AudioPlayerControls {
   previous: () => void
   setPlaylist: (songs: Song[]) => void
   restoreFromSongs: (songs: Song[]) => void
+  updateCurrentSong: (song: Song) => void
 }
 
 const persisted = loadPersistedState()
@@ -353,6 +354,10 @@ export function useAudioPlayer(): AudioPlayerState &
     }
   }, [])
 
+  const updateCurrentSong = useCallback((song: Song) => {
+    setCurrentSong((prev) => (prev && prev.id === song.id ? song : prev))
+  }, [])
+
   return {
     currentSong,
     isPlaying,
@@ -369,6 +374,7 @@ export function useAudioPlayer(): AudioPlayerState &
     previous,
     setPlaylist,
     restoreFromSongs,
+    updateCurrentSong,
     audioRef,
   }
 }

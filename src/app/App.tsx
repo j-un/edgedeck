@@ -3,6 +3,7 @@ import { useAudioPlayer } from './hooks/useAudioPlayer.ts'
 import { useMediaSession } from './hooks/useMediaSession.ts'
 import { Player } from './components/Player.tsx'
 import { Library, type Tab } from './pages/Library.tsx'
+import { toggleStar } from './api.ts'
 import type { Song } from './types.ts'
 import './App.css'
 
@@ -33,6 +34,7 @@ function App() {
     previous,
     setPlaylist,
     restoreFromSongs,
+    updateCurrentSong,
   } = useAudioPlayer()
 
   useMediaSession({
@@ -68,6 +70,14 @@ function App() {
       play(startFrom)
     },
     [setPlaylist, play],
+  )
+
+  const handleStarFromPlayer = useCallback(
+    async (songId: string) => {
+      const updated = await toggleStar(songId)
+      updateCurrentSong(updated)
+    },
+    [updateCurrentSong],
   )
 
   return (
@@ -127,6 +137,8 @@ function App() {
         previous={previous}
         setPlaylist={setPlaylist}
         restoreFromSongs={restoreFromSongs}
+        updateCurrentSong={updateCurrentSong}
+        onStar={handleStarFromPlayer}
       />
     </div>
   )
