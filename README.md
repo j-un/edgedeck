@@ -19,6 +19,8 @@ A personal music streaming PWA built on the Cloudflare ecosystem (Workers, D1, R
 - File deduplication by SHA-256 hash
 - Protected by Cloudflare Zero Trust Access
 
+> **Note:** On mobile, background audio playback may stop unexpectedly depending on the browser. If this happens, try a browser that supports background audio playback, such as [Vivaldi](https://vivaldi.com/).
+
 ## Tech Stack
 
 | Layer    | Technology                      |
