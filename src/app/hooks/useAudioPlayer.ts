@@ -170,9 +170,20 @@ export function useAudioPlayer(): AudioPlayerState &
       persistCurrentTime(audio.currentTime)
     }
 
+    // Check if playback position is near the end of the song
+    const isNearEnd = () =>
+      audio.duration > 0 && audio.currentTime >= audio.duration - 1
+
     // Error / stall recovery: retry current playback or advance to next
     const onError = () => {
       if (!audio.src) return
+      // If near the end of the song, treat as ended and advance
+      if (isNearEnd()) {
+        setIsPlaying(false)
+        retryCountRef.current = 0
+        advanceToNext(audio, currentSong?.id)
+        return
+      }
       retryCountRef.current++
       if (retryCountRef.current <= MAX_RETRY) {
         retryTimerRef.current = setTimeout(() => {
@@ -190,6 +201,12 @@ export function useAudioPlayer(): AudioPlayerState &
     }
 
     const onStalled = () => {
+      // If near the end, treat as ended
+      if (isNearEnd()) {
+        setIsPlaying(false)
+        advanceToNext(audio, currentSong?.id)
+        return
+      }
       // When stalled, wait a bit then check if still stalled
       retryTimerRef.current = setTimeout(() => {
         if (audio.paused && !audio.ended && isPlaying) {
@@ -212,6 +229,39 @@ export function useAudioPlayer(): AudioPlayerState &
       }, 10000)
     }
 
+    // Recovery on screen wake / tab focus return
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return
+      if (!audio.src) return
+
+      // If audio ended while backgrounded but ended event didn't advance
+      if (audio.ended) {
+        advanceToNext(audio, currentSong?.id)
+        return
+      }
+
+      // If we should be playing but audio is paused (e.g. OS suspended it)
+      if (isPlaying && audio.paused) {
+        // If near the end, advance instead of retrying
+        if (isNearEnd()) {
+          advanceToNext(audio, currentSong?.id)
+          return
+        }
+        retryCountRef.current = 0
+        playWithRetry(audio, () => setIsPlaying(true))
+        return
+      }
+
+      // If audio has an error, attempt reload
+      if (audio.error) {
+        retryCountRef.current = 0
+        const savedTime = audio.currentTime
+        audio.load()
+        audio.currentTime = savedTime
+        playWithRetry(audio, () => setIsPlaying(true))
+      }
+    }
+
     audio.addEventListener('timeupdate', onTimeUpdate)
     audio.addEventListener('durationchange', onDurationChange)
     audio.addEventListener('ended', onEnded)
@@ -220,6 +270,7 @@ export function useAudioPlayer(): AudioPlayerState &
     audio.addEventListener('error', onError)
     audio.addEventListener('stalled', onStalled)
     audio.addEventListener('waiting', onWaiting)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate)
@@ -230,6 +281,7 @@ export function useAudioPlayer(): AudioPlayerState &
       audio.removeEventListener('error', onError)
       audio.removeEventListener('stalled', onStalled)
       audio.removeEventListener('waiting', onWaiting)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
     }
   }, [
