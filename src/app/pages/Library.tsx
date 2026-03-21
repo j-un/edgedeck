@@ -352,7 +352,29 @@ export function Library({
                 >
                   &larr; Albums
                 </button>
-                <h2 className="detail-title">{selectedAlbum}</h2>
+                {(() => {
+                  const artworkKey =
+                    albumSongs.find((s) => s.artwork_r2_key)?.artwork_r2_key ??
+                    null
+                  const artist = albumSongs[0]?.artist || '(Unknown)'
+                  return (
+                    <>
+                      {artworkKey ? (
+                        <img
+                          className="detail-artwork"
+                          src={`/api/songs/artwork/${artworkKey.replace('artwork/', '')}`}
+                          alt={selectedAlbum}
+                        />
+                      ) : (
+                        <div className="detail-artwork-placeholder">♪</div>
+                      )}
+                      <div className="detail-info">
+                        <h2 className="detail-title">{selectedAlbum}</h2>
+                        <p className="detail-artist">{artist}</p>
+                      </div>
+                    </>
+                  )
+                })()}
                 <button
                   className="btn-play-all"
                   onClick={() => {
