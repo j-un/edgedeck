@@ -2,6 +2,10 @@
 
 A personal music streaming PWA built on the Cloudflare ecosystem (Workers, D1, R2).
 
+<p align="center">
+  <img src="docs/screenshot.png" width="800" alt="EdgeDeck">
+</p>
+
 ## Features
 
 - Stream your music library from anywhere via browser
