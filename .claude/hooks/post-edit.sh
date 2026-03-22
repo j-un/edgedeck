@@ -18,4 +18,7 @@ elif echo "$FILE_PATH" | grep -qE '\.(ts|tsx)$'; then
   npm run lint 2>&1
   npx tsc -b 2>&1
   npx vitest run 2>&1
+elif echo "$FILE_PATH" | grep -qE '\.(json|yml|yaml|md|css|html)$'; then
+  cd "$(dirname "$0")/../.."
+  npx prettier --write "$FILE_PATH" 2>&1
 fi
