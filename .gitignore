@@ -28,7 +28,6 @@ terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.*
 terraform/*.tfvars
-terraform/.terraform.lock.hcl
 
 # Claude Code
 .claude/settings.local.json
