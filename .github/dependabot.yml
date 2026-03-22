@@ -10,8 +10,8 @@ updates:
       production-dependencies:
         dependency-type: production
     ignore:
-      - dependency-name: "eslint"
-        versions: [">=10"]
+      - dependency-name: 'eslint'
+        versions: ['>=10']
 
   - package-ecosystem: terraform
     directory: /terraform
