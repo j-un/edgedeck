@@ -39,6 +39,9 @@ export function Library({
   const [query, setQuery] = useState('')
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null)
+  const [selectedArtistAlbum, setSelectedArtistAlbum] = useState<string | null>(
+    null,
+  )
 
   // Playlist state
   const [playlists, setPlaylists] = useState<Playlist[]>([])
@@ -90,6 +93,7 @@ export function Library({
   useEffect(() => {
     setSelectedAlbum(null)
     setSelectedArtist(null)
+    setSelectedArtistAlbum(null)
     setSelectedPlaylistId(null)
   }, [tab])
 
@@ -185,6 +189,7 @@ export function Library({
     setQuery(q)
     setSelectedAlbum(null)
     setSelectedArtist(null)
+    setSelectedArtistAlbum(null)
   }, [])
 
   // Albums grouped
@@ -248,6 +253,30 @@ export function Library({
     )
   }, [songs, selectedArtist])
 
+  const artistAlbums = useMemo(() => {
+    const map = new Map<string, Song[]>()
+    for (const song of artistSongs) {
+      const key = song.album || '(No Album)'
+      const list = map.get(key) || []
+      list.push(song)
+      map.set(key, list)
+    }
+    return Array.from(map.entries())
+      .map(([name, tracks]) => {
+        const artworkKey =
+          tracks.find((t) => t.artwork_r2_key)?.artwork_r2_key ?? null
+        return { name, trackCount: tracks.length, tracks, artworkKey }
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [artistSongs])
+
+  const artistAlbumSongs = useMemo(() => {
+    if (selectedArtistAlbum === null) return []
+    return artistSongs.filter(
+      (s) => (s.album || '(No Album)') === selectedArtistAlbum,
+    )
+  }, [artistSongs, selectedArtistAlbum])
+
   // History: resolve song IDs to Song objects
   const historySongs = useMemo(() => {
     if (tab !== 'history') return []
@@ -262,8 +291,12 @@ export function Library({
     (song: Song) => {
       if (tab === 'albums' && selectedAlbum !== null) {
         onPlayAll(albumSongs, song)
-      } else if (tab === 'artists' && selectedArtist !== null) {
-        onPlayAll(artistSongs, song)
+      } else if (
+        tab === 'artists' &&
+        selectedArtist !== null &&
+        selectedArtistAlbum !== null
+      ) {
+        onPlayAll(artistAlbumSongs, song)
       } else if (tab === 'playlists' && selectedPlaylistId === 'starred') {
         onPlayAll(starredSongs, song)
       } else if (tab === 'playlists' && selectedPlaylistId !== null) {
@@ -276,9 +309,10 @@ export function Library({
       tab,
       selectedAlbum,
       selectedArtist,
+      selectedArtistAlbum,
       selectedPlaylistId,
       albumSongs,
-      artistSongs,
+      artistAlbumSongs,
       starredSongs,
       playlistSongs,
       onPlay,
@@ -421,40 +455,115 @@ export function Library({
               )}
             </div>
           )}
-          {tab === 'artists' && selectedArtist !== null && (
-            <div className="detail-view">
-              <div className="detail-header">
-                <button
-                  className="back-btn"
-                  onClick={() => setSelectedArtist(null)}
-                >
-                  &larr; Artists
-                </button>
-                <h2 className="detail-title">{selectedArtist}</h2>
-                <button
-                  className="btn-play-all"
-                  onClick={() => {
-                    if (artistSongs.length > 0) {
-                      onPlayAll(artistSongs, artistSongs[0])
-                    }
-                  }}
-                >
-                  ▶ Play All
-                </button>
+          {tab === 'artists' &&
+            selectedArtist !== null &&
+            selectedArtistAlbum === null && (
+              <div className="detail-view">
+                <div className="detail-header">
+                  <button
+                    className="back-btn"
+                    onClick={() => setSelectedArtist(null)}
+                  >
+                    &larr; Artists
+                  </button>
+                  <h2 className="detail-title">{selectedArtist}</h2>
+                  <button
+                    className="btn-play-all"
+                    onClick={() => {
+                      if (artistSongs.length > 0) {
+                        onPlayAll(artistSongs, artistSongs[0])
+                      }
+                    }}
+                  >
+                    ▶ Play All
+                  </button>
+                </div>
+                <div className="group-list">
+                  {artistAlbums.map((album) => (
+                    <button
+                      key={album.name}
+                      className="group-item"
+                      onClick={() => setSelectedArtistAlbum(album.name)}
+                    >
+                      {album.artworkKey ? (
+                        <img
+                          className="album-artwork"
+                          src={`/api/songs/artwork/${album.artworkKey.replace('artwork/', '')}`}
+                          alt=""
+                        />
+                      ) : (
+                        <span className="album-artwork-placeholder" />
+                      )}
+                      <span className="group-info">
+                        <span className="group-name">{album.name}</span>
+                        <span className="group-meta">
+                          {album.trackCount} tracks
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <SongList
-                songs={artistSongs}
-                currentSongId={currentSongId}
-                onPlay={handlePlaySong}
-                onDelete={handleDelete}
-                onDeleteMany={handleDeleteMany}
-                onStar={handleStar}
-                onAddToPlaylist={handleAddToPlaylist}
-                onAddManyToPlaylist={handleAddManyToPlaylist}
-                playlists={playlists}
-              />
-            </div>
-          )}
+            )}
+          {tab === 'artists' &&
+            selectedArtist !== null &&
+            selectedArtistAlbum !== null && (
+              <div className="detail-view">
+                <div className="detail-header">
+                  <button
+                    className="back-btn"
+                    onClick={() => setSelectedArtistAlbum(null)}
+                  >
+                    &larr; {selectedArtist}
+                  </button>
+                  {(() => {
+                    const artworkKey =
+                      artistAlbumSongs.find((s) => s.artwork_r2_key)
+                        ?.artwork_r2_key ?? null
+                    return (
+                      <>
+                        {artworkKey ? (
+                          <img
+                            className="detail-artwork"
+                            src={`/api/songs/artwork/${artworkKey.replace('artwork/', '')}`}
+                            alt={selectedArtistAlbum}
+                          />
+                        ) : (
+                          <div className="detail-artwork-placeholder">♪</div>
+                        )}
+                        <div className="detail-info">
+                          <h2 className="detail-title">
+                            {selectedArtistAlbum}
+                          </h2>
+                          <p className="detail-artist">{selectedArtist}</p>
+                        </div>
+                      </>
+                    )
+                  })()}
+                  <button
+                    className="btn-play-all"
+                    onClick={() => {
+                      if (artistAlbumSongs.length > 0) {
+                        onPlayAll(artistAlbumSongs, artistAlbumSongs[0])
+                      }
+                    }}
+                  >
+                    ▶ Play All
+                  </button>
+                </div>
+                <SongList
+                  songs={artistAlbumSongs}
+                  currentSongId={currentSongId}
+                  onPlay={handlePlaySong}
+                  onDelete={handleDelete}
+                  onDeleteMany={handleDeleteMany}
+                  onStar={handleStar}
+                  onAddToPlaylist={handleAddToPlaylist}
+                  onAddManyToPlaylist={handleAddManyToPlaylist}
+                  playlists={playlists}
+                />
+              </div>
+            )}
 
           {/* Playlists tab */}
           {tab === 'playlists' && selectedPlaylistId === null && (
