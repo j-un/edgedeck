@@ -62,7 +62,11 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached
       return fetch(event.request).then((response) => {
         // 認証切れ時のリダイレクトレスポンス(ログインページHTML)をキャッシュしない
-        if (response.ok && !response.redirected && event.request.method === 'GET') {
+        if (
+          response.ok &&
+          !response.redirected &&
+          event.request.method === 'GET'
+        ) {
           const clone = response.clone()
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, clone)
