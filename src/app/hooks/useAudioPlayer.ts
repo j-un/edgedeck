@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Song } from '../types.ts'
+import { isAuthExpired } from '../api.ts'
 import {
   loadPersistedState,
   saveQueue,
@@ -64,7 +65,11 @@ export function useAudioPlayer(): AudioPlayerState &
             retryCountRef.current = 0
             onSuccess?.()
           })
-          .catch(() => {
+          .catch(async () => {
+            if (await isAuthExpired()) {
+              window.location.reload()
+              return
+            }
             retryCountRef.current++
             if (retryCountRef.current <= MAX_RETRY) {
               retryTimerRef.current = setTimeout(attempt, RETRY_DELAY_MS)
@@ -175,13 +180,19 @@ export function useAudioPlayer(): AudioPlayerState &
       audio.duration > 0 && audio.currentTime >= audio.duration - 1
 
     // Error / stall recovery: retry current playback or advance to next
-    const onError = () => {
+    const onError = async () => {
       if (!audio.src) return
       // If near the end of the song, treat as ended and advance
       if (isNearEnd()) {
         setIsPlaying(false)
         retryCountRef.current = 0
         advanceToNext(audio, currentSong?.id)
+        return
+      }
+      // 認証期限切れならリトライせずログイン画面へ遷移
+      if (await isAuthExpired()) {
+        setIsPlaying(false)
+        window.location.reload()
         return
       }
       retryCountRef.current++

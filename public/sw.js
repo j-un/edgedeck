@@ -36,10 +36,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone)
-          })
+          // 認証切れ時のリダイレクトレスポンス(ログインページHTML)をキャッシュしない
+          const ct = response.headers.get('content-type') || ''
+          if (response.ok && ct.includes('application/json')) {
+            const clone = response.clone()
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clone)
+            })
+          }
           return response
         })
         .catch(() => caches.match(event.request)),
@@ -57,7 +61,8 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) return cached
       return fetch(event.request).then((response) => {
-        if (response.ok && event.request.method === 'GET') {
+        // 認証切れ時のリダイレクトレスポンス(ログインページHTML)をキャッシュしない
+        if (response.ok && !response.redirected && event.request.method === 'GET') {
           const clone = response.clone()
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, clone)

@@ -1,5 +1,22 @@
 import type { AnalyzeResult, Playlist, Song } from './types.ts'
 
+/**
+ * Cloudflare Access の認証が期限切れかどうかを検知する。
+ * 期限切れの場合、Access はログインページへ 302 リダイレクトを返す。
+ * redirect:'manual' を使うことで opaqueredirect レスポンスとして検知できる。
+ */
+export async function isAuthExpired(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/songs', {
+      method: 'HEAD',
+      redirect: 'manual',
+    })
+    return res.type === 'opaqueredirect'
+  } catch {
+    return false // ネットワークエラーは認証切れではない
+  }
+}
+
 export async function fetchSongs(query?: string): Promise<Song[]> {
   const url = query ? `/api/songs?q=${encodeURIComponent(query)}` : '/api/songs'
   const res = await fetch(url)
