@@ -17,6 +17,7 @@ const TABS: { key: Tab; label: string }[] = [
 
 function App() {
   const [tab, setTab] = useState<Tab>('songs')
+  const [shuffleEnabled, setShuffleEnabled] = useState(false)
   const {
     audioRef,
     currentSong,
@@ -66,10 +67,21 @@ function App() {
 
   const handlePlayAll = useCallback(
     (songs: Song[], startFrom: Song) => {
-      setPlaylist(songs)
-      play(startFrom)
+      if (shuffleEnabled) {
+        const shuffled = [...songs]
+        // Fisher-Yates shuffle
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        }
+        setPlaylist(shuffled)
+        play(shuffled[0])
+      } else {
+        setPlaylist(songs)
+        play(startFrom)
+      }
     },
-    [setPlaylist, play],
+    [setPlaylist, play, shuffleEnabled],
   )
 
   const handleStarFromPlayer = useCallback(
@@ -117,6 +129,8 @@ function App() {
           onPlay={handlePlay}
           onPlayAll={handlePlayAll}
           onSongsLoaded={handleSongsLoaded}
+          shuffleEnabled={shuffleEnabled}
+          onShuffleToggle={() => setShuffleEnabled((v) => !v)}
         />
       </main>
 
