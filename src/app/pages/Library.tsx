@@ -15,6 +15,7 @@ import { SearchBar } from '../components/SearchBar.tsx'
 import { SongList } from '../components/SongList.tsx'
 import { loadHistory } from '../hooks/usePlaybackPersistence.ts'
 import type { Playlist, Song } from '../types.ts'
+import { PlayIcon } from '../components/Icons.tsx'
 
 export type Tab = 'songs' | 'albums' | 'artists' | 'history' | 'playlists'
 
@@ -422,7 +423,7 @@ export function Library({
                       }
                     }}
                   >
-                    ▶ Play All
+                    <PlayIcon /> Play All
                   </button>
                   <button
                     className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
@@ -492,7 +493,7 @@ export function Library({
                         }
                       }}
                     >
-                      ▶ Play All
+                      <PlayIcon /> Play All
                     </button>
                     <button
                       className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
@@ -577,7 +578,7 @@ export function Library({
                         }
                       }}
                     >
-                      ▶ Play All
+                      <PlayIcon /> Play All
                     </button>
                     <button
                       className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
@@ -676,7 +677,7 @@ export function Library({
                       }
                     }}
                   >
-                    ▶ Play All
+                    <PlayIcon /> Play All
                   </button>
                   <button
                     className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
@@ -721,7 +722,7 @@ export function Library({
                         }
                       }}
                     >
-                      ▶ Play All
+                      <PlayIcon /> Play All
                     </button>
                     <button
                       className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}

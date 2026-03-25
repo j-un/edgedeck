@@ -348,6 +348,14 @@
   flex-shrink: 0;
   transition: all var(--t-normal) var(--ease-spring);
   box-shadow: 0 2px 12px rgba(232, 168, 76, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-play-all svg {
+  width: 14px;
+  height: 14px;
 }
 
 .btn-play-all:hover {
@@ -556,6 +564,14 @@
 
 .play-btn {
   color: var(--c-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .play-btn:hover {
@@ -565,6 +581,14 @@
 
 .star-btn {
   color: var(--c-text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .star-btn.starred {
@@ -899,6 +923,14 @@
   padding: 6px 10px;
   border-radius: 50%;
   transition: all var(--t-fast) var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-controls button svg {
+  width: 18px;
+  height: 18px;
 }
 
 .player-controls button:hover {
@@ -1205,6 +1237,11 @@
   .player-controls button {
     font-size: 16px;
     padding: 4px 6px;
+  }
+
+  .player-controls button svg {
+    width: 16px;
+    height: 16px;
   }
 
   .player-seek {
