@@ -220,7 +220,7 @@
   width: 48px;
   height: 48px;
   border-radius: var(--r-sm);
-  background: var(--c-surface-3);
+  background: rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   margin-right: 14px;
 }
@@ -286,7 +286,7 @@
   width: 64px;
   height: 64px;
   border-radius: 8px;
-  background: var(--c-bg-2);
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -871,7 +871,7 @@
 .player-star.star-btn {
   font-size: 13px;
   flex-shrink: 0;
-  margin-left: -10px;
+  margin-left: 2px;
   padding: 4px 6px;
   line-height: 1;
   opacity: 0.7;
@@ -1171,8 +1171,14 @@
   }
 
   .detail-header {
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
     margin-bottom: 12px;
+  }
+
+  .back-btn {
+    width: 100%;
   }
 
   .detail-artwork,
@@ -1183,12 +1189,23 @@
     font-size: 18px;
   }
 
+  .detail-info {
+    flex: initial;
+    text-align: left;
+  }
+
   .detail-title {
     font-size: 17px;
+    white-space: normal;
   }
 
   .detail-artist {
     font-size: 12px;
+  }
+
+  .play-all-group {
+    width: 100%;
+    justify-content: center;
   }
 
   .btn-play-all {
@@ -1215,6 +1232,7 @@
 
   .player {
     flex-wrap: wrap;
+    justify-content: center;
     padding: 8px 12px;
     gap: 8px;
   }
@@ -1226,8 +1244,9 @@
 
   .player-info {
     min-width: 0;
-    max-width: none;
-    flex: 1;
+    max-width: 60%;
+    flex: initial;
+    text-align: left;
   }
 
   .player-controls {
@@ -1236,7 +1255,7 @@
 
   .player-controls button {
     font-size: 16px;
-    padding: 4px 6px;
+    padding: 4px 8px;
   }
 
   .player-controls button svg {
