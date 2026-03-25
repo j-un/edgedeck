@@ -360,6 +360,58 @@
   transform: translateY(0);
 }
 
+.play-all-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-shuffle {
+  background: transparent;
+  color: var(--c-text-2);
+  border: 1px solid var(--c-border);
+  padding: 9px 16px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--t-normal) var(--ease-spring);
+  flex-shrink: 0;
+}
+
+.btn-shuffle svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.btn-shuffle:hover {
+  background: var(--c-surface-3);
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  transform: translateY(-1px);
+}
+
+.btn-shuffle.active {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  box-shadow: 0 2px 12px rgba(232, 168, 76, 0.3);
+}
+
+.btn-shuffle.active:hover {
+  background: var(--c-accent-light);
+  box-shadow: 0 4px 20px rgba(232, 168, 76, 0.4);
+}
+
+.btn-shuffle:active {
+  transform: translateY(0);
+}
+
 /* ── Song table ── */
 .song-table {
   width: 100%;
@@ -1109,6 +1161,11 @@
 
   .btn-play-all {
     padding: 7px 16px;
+    font-size: 13px;
+  }
+
+  .btn-shuffle {
+    padding: 7px 12px;
     font-size: 13px;
   }
 
