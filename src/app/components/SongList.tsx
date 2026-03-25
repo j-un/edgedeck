@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Playlist, Song } from '../types.ts'
+import { PlayIcon } from './Icons.tsx'
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null || !isFinite(seconds)) return '--:--'
@@ -225,7 +226,7 @@ export function SongList({
                   onClick={() => onPlay(song)}
                   title="Play"
                 >
-                  ▶
+                  <PlayIcon />
                 </button>
               </td>
               <td className="col-title">

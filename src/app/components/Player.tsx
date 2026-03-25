@@ -2,6 +2,13 @@ import type {
   AudioPlayerControls,
   AudioPlayerState,
 } from '../hooks/useAudioPlayer.ts'
+import {
+  PlayIcon,
+  PauseIcon,
+  PreviousIcon,
+  NextIcon,
+  StarIcon,
+} from './Icons.tsx'
 
 function formatTime(seconds: number): string {
   if (!seconds || !isFinite(seconds)) return '0:00'
@@ -52,19 +59,19 @@ export function Player({
           onClick={() => onStar(currentSong.id)}
           title={currentSong.starred_at ? 'Unstar' : 'Star'}
         >
-          {currentSong.starred_at ? '★' : '☆'}
+          <StarIcon filled={!!currentSong.starred_at} />
         </button>
       )}
 
       <div className="player-controls">
         <button onClick={previous} title="Previous">
-          ⏮
+          <PreviousIcon />
         </button>
         <button onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'}>
-          {isPlaying ? '⏸' : '▶'}
+          {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </button>
         <button onClick={next} title="Next">
-          ⏭
+          <NextIcon />
         </button>
       </div>
 
