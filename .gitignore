@@ -31,6 +31,8 @@ terraform/*.tfvars
 
 # Claude Code
 .claude/settings.local.json
+.agents/
+skills-lock.json
 
 # Wrangler
 .wrangler/
