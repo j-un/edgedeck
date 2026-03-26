@@ -1,4 +1,4 @@
-const CACHE_NAME = 'edgedeck-v2'
+const CACHE_NAME = 'edgedeck-v3'
 const STATIC_ASSETS = ['/']
 
 self.addEventListener('install', (event) => {
@@ -56,12 +56,10 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Static assets: Cache First
+  // Static assets: Network First (offline fallback)
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached
-      return fetch(event.request).then((response) => {
-        // 認証切れ時のリダイレクトレスポンス(ログインページHTML)をキャッシュしない
+    fetch(event.request)
+      .then((response) => {
         if (
           response.ok &&
           !response.redirected &&
@@ -74,6 +72,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response
       })
-    }),
+      .catch(() => caches.match(event.request)),
   )
 })
