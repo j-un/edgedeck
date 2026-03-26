@@ -15,7 +15,7 @@ import { SearchBar } from '../components/SearchBar.tsx'
 import { SongList } from '../components/SongList.tsx'
 import { loadHistory } from '../hooks/usePlaybackPersistence.ts'
 import type { Playlist, Song } from '../types.ts'
-import { PlayIcon } from '../components/Icons.tsx'
+import { PlayAllGroup } from '../components/PlayAllGroup.tsx'
 
 export type Tab = 'songs' | 'albums' | 'artists' | 'history' | 'playlists'
 
@@ -338,17 +338,29 @@ export function Library({
         <>
           {/* Songs tab */}
           {tab === 'songs' && (
-            <SongList
-              songs={songs}
-              currentSongId={currentSongId}
-              onPlay={onPlay}
-              onDelete={handleDelete}
-              onDeleteMany={handleDeleteMany}
-              onStar={handleStar}
-              onAddToPlaylist={handleAddToPlaylist}
-              onAddManyToPlaylist={handleAddManyToPlaylist}
-              playlists={playlists}
-            />
+            <>
+              {songs.length > 0 && (
+                <div className="songs-play-all-bar">
+                  <PlayAllGroup
+                    songs={songs}
+                    shuffleEnabled={shuffleEnabled}
+                    onPlayAll={onPlayAll}
+                    onShuffleToggle={onShuffleToggle}
+                  />
+                </div>
+              )}
+              <SongList
+                songs={songs}
+                currentSongId={currentSongId}
+                onPlay={onPlay}
+                onDelete={handleDelete}
+                onDeleteMany={handleDeleteMany}
+                onStar={handleStar}
+                onAddToPlaylist={handleAddToPlaylist}
+                onAddManyToPlaylist={handleAddManyToPlaylist}
+                playlists={playlists}
+              />
+            </>
           )}
 
           {/* Albums tab */}
@@ -414,28 +426,12 @@ export function Library({
                     </>
                   )
                 })()}
-                <div className="play-all-group">
-                  <button
-                    className="btn-play-all"
-                    onClick={() => {
-                      if (albumSongs.length > 0) {
-                        onPlayAll(albumSongs, albumSongs[0])
-                      }
-                    }}
-                  >
-                    <PlayIcon /> Play All
-                  </button>
-                  <button
-                    className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
-                    onClick={onShuffleToggle}
-                    title="Shuffle"
-                  >
-                    <svg viewBox="0 0 24 24">
-                      <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                    </svg>
-                    Shuffle
-                  </button>
-                </div>
+                <PlayAllGroup
+                  songs={albumSongs}
+                  shuffleEnabled={shuffleEnabled}
+                  onPlayAll={onPlayAll}
+                  onShuffleToggle={onShuffleToggle}
+                />
               </div>
               <SongList
                 songs={albumSongs}
@@ -484,28 +480,12 @@ export function Library({
                     &larr; Artists
                   </button>
                   <h2 className="detail-title">{selectedArtist}</h2>
-                  <div className="play-all-group">
-                    <button
-                      className="btn-play-all"
-                      onClick={() => {
-                        if (artistSongs.length > 0) {
-                          onPlayAll(artistSongs, artistSongs[0])
-                        }
-                      }}
-                    >
-                      <PlayIcon /> Play All
-                    </button>
-                    <button
-                      className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
-                      onClick={onShuffleToggle}
-                      title="Shuffle"
-                    >
-                      <svg viewBox="0 0 24 24">
-                        <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                      </svg>
-                      Shuffle
-                    </button>
-                  </div>
+                  <PlayAllGroup
+                    songs={artistSongs}
+                    shuffleEnabled={shuffleEnabled}
+                    onPlayAll={onPlayAll}
+                    onShuffleToggle={onShuffleToggle}
+                  />
                 </div>
                 <div className="group-list">
                   {artistAlbums.map((album) => (
@@ -569,28 +549,12 @@ export function Library({
                       </>
                     )
                   })()}
-                  <div className="play-all-group">
-                    <button
-                      className="btn-play-all"
-                      onClick={() => {
-                        if (artistAlbumSongs.length > 0) {
-                          onPlayAll(artistAlbumSongs, artistAlbumSongs[0])
-                        }
-                      }}
-                    >
-                      <PlayIcon /> Play All
-                    </button>
-                    <button
-                      className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
-                      onClick={onShuffleToggle}
-                      title="Shuffle"
-                    >
-                      <svg viewBox="0 0 24 24">
-                        <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                      </svg>
-                      Shuffle
-                    </button>
-                  </div>
+                  <PlayAllGroup
+                    songs={artistAlbumSongs}
+                    shuffleEnabled={shuffleEnabled}
+                    onPlayAll={onPlayAll}
+                    onShuffleToggle={onShuffleToggle}
+                  />
                 </div>
                 <SongList
                   songs={artistAlbumSongs}
@@ -668,28 +632,12 @@ export function Library({
                   &larr; Playlists
                 </button>
                 <h2 className="detail-title">{'\u2605'} Starred</h2>
-                <div className="play-all-group">
-                  <button
-                    className="btn-play-all"
-                    onClick={() => {
-                      if (starredSongs.length > 0) {
-                        onPlayAll(starredSongs, starredSongs[0])
-                      }
-                    }}
-                  >
-                    <PlayIcon /> Play All
-                  </button>
-                  <button
-                    className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
-                    onClick={onShuffleToggle}
-                    title="Shuffle"
-                  >
-                    <svg viewBox="0 0 24 24">
-                      <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                    </svg>
-                    Shuffle
-                  </button>
-                </div>
+                <PlayAllGroup
+                  songs={starredSongs}
+                  shuffleEnabled={shuffleEnabled}
+                  onPlayAll={onPlayAll}
+                  onShuffleToggle={onShuffleToggle}
+                />
               </div>
               <SongList
                 songs={starredSongs}
@@ -713,28 +661,12 @@ export function Library({
                   <h2 className="detail-title">
                     {selectedPlaylist?.name ?? ''}
                   </h2>
-                  <div className="play-all-group">
-                    <button
-                      className="btn-play-all"
-                      onClick={() => {
-                        if (playlistSongs.length > 0) {
-                          onPlayAll(playlistSongs, playlistSongs[0])
-                        }
-                      }}
-                    >
-                      <PlayIcon /> Play All
-                    </button>
-                    <button
-                      className={`btn-shuffle${shuffleEnabled ? ' active' : ''}`}
-                      onClick={onShuffleToggle}
-                      title="Shuffle"
-                    >
-                      <svg viewBox="0 0 24 24">
-                        <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                      </svg>
-                      Shuffle
-                    </button>
-                  </div>
+                  <PlayAllGroup
+                    songs={playlistSongs}
+                    shuffleEnabled={shuffleEnabled}
+                    onPlayAll={onPlayAll}
+                    onShuffleToggle={onShuffleToggle}
+                  />
                 </div>
                 <SongList
                   songs={playlistSongs}
