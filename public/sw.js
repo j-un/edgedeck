@@ -1,5 +1,5 @@
 const CACHE_NAME = 'edgedeck-v2'
-const STATIC_ASSETS = ['/', '/manifest.json']
+const STATIC_ASSETS = ['/']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
