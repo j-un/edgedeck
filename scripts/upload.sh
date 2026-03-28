@@ -35,6 +35,9 @@ if [ -n "${CF_ACCESS_CLIENT_ID:-}" ] && [ -n "${CF_ACCESS_CLIENT_SECRET:-}" ]; t
     -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"
   )
   echo "Cloudflare Access auth: enabled"
+elif [[ "$API_BASE" != http://localhost* ]]; then
+  echo "WARNING: CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET are not set."
+  echo "         Requests to ${API_BASE} will likely fail without Cloudflare Access credentials."
 fi
 
 # Supported formats (uploaded as-is)
