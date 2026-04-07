@@ -31,7 +31,7 @@ resource "cloudflare_zero_trust_access_application" "app" {
   zone_id          = var.zone_id
   name             = "edgedeck"
   domain           = var.app_domain
-  session_duration = "24h"
+  session_duration = "168h"
   type             = "self_hosted"
 
   policies = [
