@@ -123,6 +123,7 @@ function App() {
 
       <main className="main">
         <Library
+          key={tab}
           tab={tab}
           onTabChange={setTab}
           currentSongId={currentSong?.id ?? null}
