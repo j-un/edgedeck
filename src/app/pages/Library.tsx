@@ -71,6 +71,7 @@ export function Library({
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loadSongs performs async API fetch; setState happens after await. Moving to TanStack Query is out of scope.
     loadSongs(query || undefined)
   }, [query, loadSongs])
 
@@ -80,6 +81,7 @@ export function Library({
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loadPlaylists performs async API fetch; setState happens after await.
     loadPlaylists()
   }, [loadPlaylists])
 
@@ -90,17 +92,10 @@ export function Library({
 
   useEffect(() => {
     if (selectedPlaylistId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- loadPlaylistSongs performs async API fetch; setState happens after await.
       loadPlaylistSongs(selectedPlaylistId)
     }
   }, [selectedPlaylistId, loadPlaylistSongs])
-
-  // Reset detail selections when tab changes
-  useEffect(() => {
-    setSelectedAlbum(null)
-    setSelectedArtist(null)
-    setSelectedArtistAlbum(null)
-    setSelectedPlaylistId(null)
-  }, [tab])
 
   const handleDelete = async (song: Song) => {
     if (!confirm(`Delete "${song.title}"?`)) return
