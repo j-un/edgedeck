@@ -18,10 +18,10 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
-    "hono": "4.12.27",
-    "music-metadata": "11.13.0",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "hono": "4.12.32",
+    "music-metadata": "11.14.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20260628.1",
