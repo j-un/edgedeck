@@ -14,6 +14,9 @@ updates:
         versions: ['>=10']
       - dependency-name: '@eslint/*'
         versions: ['>=10']
+      # typescript-eslint requires typescript <6.1.0; TS 7 has no programmatic API yet
+      - dependency-name: 'typescript'
+        versions: ['>=7']
 
   - package-ecosystem: terraform
     directory: /terraform
