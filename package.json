@@ -18,8 +18,8 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
-    "hono": "4.13.12",
-    "music-metadata": "11.16.1",
+    "hono": "4.13.13",
+    "music-metadata": "12.1.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
